@@ -210,9 +210,8 @@ draw-stack = ->
 
 R = -> ~~(it * Math.random!)
 pick = -> it[R it.length]
-document.onkeydown = ->
-  if it.which == 13
-    draw-stack!
+document.onclick = ->
+  draw-stack!
 
 draw-stack!
 
