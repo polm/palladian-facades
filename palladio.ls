@@ -5,26 +5,25 @@ PAPER = raphael 10, 20, WIDTH, 1000
 UNIT = 40 # standard width unit
 CENTER = WIDTH / 2
 
-draw-triangle = (width, center, color=\white) ->
+white = -> it.attr \fill, \white
+black = -> it.attr \fill, \black
+
+draw-triangle = (width, center, color=white) ->
   w2 = (UNIT * width) / 2
   w4 = ~~(w2 / 2)
   sx = center.x - w2
   sy = center.y
-  tri = PAPER.path [
+  color PAPER.path [
     "M#{center.x - w2} #sy L#{center.x} #{sy - w4}"
     "L#{center.x + w2} #sy z"
   ]
-  tri.attr \fill, color
-  if color != \white
-    tri.attr \stroke, color
 
 draw-roof-base = (width, center) ->
   # the "architrave" or "entablature", flat thing under pediment
   h = UNIT / 4
   cx = center.x - ( (width * UNIT) / 2)
   cy = center.y - h
-  rect = PAPER.rect cx, cy, UNIT * width, h
-  rect.attr \fill, \white
+  white PAPER.rect cx, cy, UNIT * width, h
 
 draw-triangle-roof = (width, center) ->
   draw-roof-base width + 1, center
@@ -36,13 +35,10 @@ draw-flat-roof = (width, center) ->
   # trapezoid-shaped, dark
   lc = x: center.x - (width * UNIT / 2), y: center.y
   rc = x: center.x + (width * UNIT / 2), y: center.y
-  color = \black
-  draw-triangle 2, lc, color
-  draw-triangle 2, rc, color
+  draw-triangle 2, lc, black
+  draw-triangle 2, rc, black
   h2 = UNIT / 2
-  rect = PAPER.rect lc.x, lc.y - h2, width * UNIT, h2
-  rect.attr \fill, color
-  rect.attr \stroke, color
+  black PAPER.rect lc.x, lc.y - h2, width * UNIT, h2
 
 draw-doorway = (center) ->
   cx = center.x
@@ -116,14 +112,11 @@ draw-column-section = (width, center) ->
 
   for ii from 0 to width
     cx = x - (column-width / 2)
-    rect = PAPER.rect cx, y, column-width, column-height
-    rect.attr \fill, \white
+    white PAPER.rect cx, y, column-width, column-height
     cx = x - (cap-width / 2)
-    rect = PAPER.rect cx, y, cap-width, cap-height
-    rect.attr \fill, \white
+    white PAPER.rect cx, y, cap-width, cap-height
     cy = y + (UNIT * 2) - cap-height
-    rect = PAPER.rect cx, cy, cap-width, cap-height
-    rect.attr \fill, \white
+    white PAPER.rect cx, cy, cap-width, cap-height
     x += UNIT # move over
 
 draw-bannister = (width, center) ->
@@ -134,32 +127,28 @@ draw-bannister = (width, center) ->
   y = center.y + (2 * UNIT) - bh # this is the top
   for ii from 0 to width * 4
     cx = x - (uu / 2)
-    rect = PAPER.rect cx, y, uu, bh
-    rect.attr \fill, \white
+    white PAPER.rect cx, y, uu, bh
     x += UNIT / 4 # move over
   x = center.x - (UNIT * (width / 2))
-  rect = PAPER.rect x, y - (uu / 2), width * UNIT, uu
-  rect.attr \fill, \white
-  rect = PAPER.rect x, center.y + (UNIT * 2) - (uu / 2), width * UNIT, uu
-  rect.attr \fill, \white
+  white PAPER.rect x, y - (uu / 2), width * UNIT, uu
+  white PAPER.rect x, center.y + (UNIT * 2) - (uu / 2), width * UNIT, uu
 
 draw-wall = (width, center, color) ->
   # just a wall without columns
   x = center.x - (UNIT * (width / 2))
   y = center.y # this is the top
-  rect = PAPER.rect x, y, width * UNIT, 2 * UNIT
-  rect.attr \fill, color
+  color PAPER.rect x, y, width * UNIT, 2 * UNIT
 
 draw-plain-wall = (width, center) ->
-  draw-wall width, center, \white
+  draw-wall width, center, white
 draw-recessed-wall = (width, center) ->
-  draw-wall width, center, \#ccc
+  draw-wall width, center, -> it.attr \fill, \#ccc
 
 draw-foundation = (width, center) ->
   # just a wall on the same level as the stairs
   x = center.x - (UNIT * (width / 2))
   y = center.y # this is the top
-  PAPER.rect x, y, width * UNIT, UNIT / 2
+  white PAPER.rect x, y, width * UNIT, UNIT / 2
 
 draw-building = (depth, width, floors, max-floor) -> # depth=0 front
   w = width
@@ -186,21 +175,12 @@ draw-building = (depth, width, floors, max-floor) -> # depth=0 front
 
 draw-stack = ->
   PAPER.clear!
-  # first generate front
-  front-w = 1 + (2 * R 3) # 1-5, odd only
-  front-f = 1 + R 3 # 1-3
-  layers = [w: front-w, f: front-f]
-  # then generate 2-4 more layers, each bigger in some dimension
-  for ll from 0 til 2 + R 3
+  layers = []
+  for ll from 0 til 2 + R 5
     fp = 1 + R 6
     wp = 1 + (2 * R 12)
-    #if wp == 0
-    #  fp = 1 + R 2
-    #last-layer = layers[*-1]
-    #layers.push w: last-layer.w + wp, f: last-layer.f + fp
     layers.push w: wp, f: fp
 
-  layers = layers.reverse!
   max-floor = Math.max.apply null, layers.map -> it.f
   for li from 0 til layers.length
     layer = layers[li]
@@ -214,5 +194,3 @@ document.onclick = ->
   draw-stack!
 
 draw-stack!
-
-console.log \pie
