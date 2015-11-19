@@ -13,15 +13,6 @@ MAX_WIDTH = ~~(WIDTH / (2 * UNIT)) - 2
 PAPER = raphael 10, 50, WIDTH / SCALE, HEIGHT / SCALE
 CENTER = WIDTH / 2
 
-recalculate-size = (scale=1) ->
-  WIDTH := window.inner-width * scale
-  HEIGHT := window.inner-height * scale
-  MAX_FLOORS := ~~(HEIGHT / (2 * UNIT)) - 2
-  MAX_WIDTH := ~~(WIDTH / (2 * UNIT)) - 2
-  CENTER := WIDTH / 2
-  PAPER.clear!
-  PAPER := raphael 10, 50, WIDTH / scale, HEIGHT / scale
-
 white = -> it.attr \fill, \white
 black = -> it.attr \fill, \black
 
@@ -236,6 +227,17 @@ do-all = ->
   draw-fit!
   size-to-fit!
   ready-download!
+
+recalculate-size = (scale=1) ->
+  WIDTH := window.inner-width * scale
+  HEIGHT := window.inner-height * scale
+  MAX_FLOORS := ~~(HEIGHT / (2 * UNIT)) - 2
+  MAX_WIDTH := ~~(WIDTH / (2 * UNIT)) - 2
+  CENTER := WIDTH / 2
+  PAPER.clear!
+  document.query-selector(\svg).remove!
+  PAPER := raphael 10, 50, WIDTH / scale, HEIGHT / scale
+  document.query-selector(\svg).onclick = do-all
 
 window.onresize = ->
   recalculate-size!
