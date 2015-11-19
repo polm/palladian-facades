@@ -4,13 +4,14 @@ UNIT = 40 # standard width unit
 U2 = UNIT / 2
 U4 = UNIT / 4
 U8 = UNIT / 8
+
 WIDTH = window.inner-width
-HEIGHT = window.inner-height 
+HEIGHT = window.inner-height
 MAX_FLOORS = ~~(HEIGHT / (2 * UNIT)) - 2
 MAX_WIDTH = ~~(WIDTH / (2 * UNIT)) - 2
 PAPER = raphael 10, 50, WIDTH, HEIGHT
-
 CENTER = WIDTH / 2
+
 white = -> it.attr \fill, \white
 black = -> it.attr \fill, \black
 
@@ -219,6 +220,15 @@ size-to-fit = ->
   M = 20 # margin
   PAPER.set-view-box bounds.x - M, 0, bounds.width + 2 * M, HEIGHT # bounds.height + 2 * M
 
+recalculate-size = ->
+  WIDTH := window.inner-width
+  HEIGHT := window.inner-height
+  MAX_FLOORS := ~~(HEIGHT / (2 * UNIT)) - 2
+  MAX_WIDTH := ~~(WIDTH / (2 * UNIT)) - 2
+  CENTER := WIDTH / 2
+  PAPER.clear!
+  PAPER := raphael 10, 50, WIDTH, HEIGHT
+
 R = -> ~~(it * Math.random!)
 pick = -> it[R it.length]
 
@@ -228,6 +238,10 @@ do-all = ->
   draw-fit!
   #size-to-fit!
   ready-download!
+
+window.onresize = ->
+  recalculate-size!
+  do-all!
 
 document.query-selector(\#loop).onclick = ->
   it.preventDefault!
