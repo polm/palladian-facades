@@ -195,9 +195,12 @@ draw-fit = (center=CENTER) ->
   narrowish = ~~(MAX_WIDTH / 2) - 1
   short = ~~(MAX_FLOORS / 2)
   draw-stack MAX_WIDTH, short
-  draw-stack narrow, MAX_FLOORS
-  draw-stack narrow, MAX_FLOORS, center - (U2 * MAX_WIDTH) - R narrowish
-  draw-stack narrow, MAX_FLOORS, center + (U2 * MAX_WIDTH) + R narrowish
+  if R 8
+    draw-stack narrow, MAX_FLOORS
+  if not R 4
+    draw-stack narrow, MAX_FLOORS, center - (U2 * MAX_WIDTH) - R narrowish
+  if not R 4
+    draw-stack narrow, MAX_FLOORS, center + (U2 * MAX_WIDTH) + R narrowish
 
 draw-three-towers = ->
   draw-base CENTER
