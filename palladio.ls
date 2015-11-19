@@ -5,12 +5,22 @@ U2 = UNIT / 2
 U4 = UNIT / 4
 U8 = UNIT / 8
 
-WIDTH = window.inner-width
-HEIGHT = window.inner-height
+SCALE = 1
+WIDTH = window.inner-width * SCALE
+HEIGHT = window.inner-height * SCALE
 MAX_FLOORS = ~~(HEIGHT / (2 * UNIT)) - 2
 MAX_WIDTH = ~~(WIDTH / (2 * UNIT)) - 2
-PAPER = raphael 10, 50, WIDTH, HEIGHT
+PAPER = raphael 10, 50, WIDTH / SCALE, HEIGHT / SCALE
 CENTER = WIDTH / 2
+
+recalculate-size = (scale=1) ->
+  WIDTH := window.inner-width * scale
+  HEIGHT := window.inner-height * scale
+  MAX_FLOORS := ~~(HEIGHT / (2 * UNIT)) - 2
+  MAX_WIDTH := ~~(WIDTH / (2 * UNIT)) - 2
+  CENTER := WIDTH / 2
+  PAPER.clear!
+  PAPER := raphael 10, 50, WIDTH / scale, HEIGHT / scale
 
 white = -> it.attr \fill, \white
 black = -> it.attr \fill, \black
@@ -216,27 +226,15 @@ get-all-bounds = ->
   return set.getBBox!
 
 size-to-fit = ->
-  bounds = get-all-bounds!
-  M = 20 # margin
-  PAPER.set-view-box bounds.x - M, 0, bounds.width + 2 * M, HEIGHT # bounds.height + 2 * M
-
-recalculate-size = ->
-  WIDTH := window.inner-width
-  HEIGHT := window.inner-height
-  MAX_FLOORS := ~~(HEIGHT / (2 * UNIT)) - 2
-  MAX_WIDTH := ~~(WIDTH / (2 * UNIT)) - 2
-  CENTER := WIDTH / 2
-  PAPER.clear!
-  PAPER := raphael 10, 50, WIDTH, HEIGHT
+  PAPER.set-view-box 0, 0, WIDTH, HEIGHT
 
 R = -> ~~(it * Math.random!)
 pick = -> it[R it.length]
 
 do-all = ->
   PAPER.clear!
-  #draw-three-towers!
   draw-fit!
-  #size-to-fit!
+  size-to-fit!
   ready-download!
 
 window.onresize = ->
