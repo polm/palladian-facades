@@ -1,15 +1,21 @@
 raphael = require \raphael
 
-WIDTH = 1280
-PAPER = raphael 10, 20, WIDTH, 1000
 UNIT = 40 # standard width unit
-CENTER = WIDTH / 2
+U2 = UNIT / 2
+U4 = UNIT / 4
+U8 = UNIT / 8
+WIDTH = window.inner-width
+HEIGHT = window.inner-height 
+MAX_FLOORS = ~~(HEIGHT / (2 * UNIT)) - 2
+MAX_WIDTH = ~~(WIDTH / (2 * UNIT)) - 2
+PAPER = raphael 10, 50, WIDTH, HEIGHT
 
+CENTER = WIDTH / 2
 white = -> it.attr \fill, \white
 black = -> it.attr \fill, \black
 
 draw-triangle = (width, center, color=white) ->
-  w2 = (UNIT * width) / 2
+  w2 = U2 * width
   w4 = ~~(w2 / 2)
   sx = center.x - w2
   sy = center.y
@@ -20,10 +26,9 @@ draw-triangle = (width, center, color=white) ->
 
 draw-roof-base = (width, center) ->
   # the "architrave" or "entablature", flat thing under pediment
-  h = UNIT / 4
   cx = center.x - ( (width * UNIT) / 2)
-  cy = center.y - h
-  white PAPER.rect cx, cy, UNIT * width, h
+  cy = center.y - U4
+  white PAPER.rect cx, cy, UNIT * width, U4
 
 draw-triangle-roof = (width, center) ->
   draw-roof-base width + 1, center
@@ -33,24 +38,22 @@ draw-triangle-roof = (width, center) ->
 
 draw-flat-roof = (width, center) ->
   # trapezoid-shaped, dark
-  lc = x: center.x - (width * UNIT / 2), y: center.y
-  rc = x: center.x + (width * UNIT / 2), y: center.y
+  lc = x: center.x - (width * U2), y: center.y
+  rc = x: center.x + (width * U2), y: center.y
   draw-triangle 2, lc, black
   draw-triangle 2, rc, black
-  h2 = UNIT / 2
-  black PAPER.rect lc.x, lc.y - h2, width * UNIT, h2
+  black PAPER.rect lc.x, lc.y - U2, width * UNIT, U2
 
 draw-doorway = (center) ->
   cx = center.x
   cy = center.y + UNIT
-  ww = UNIT / 2
-  rect = PAPER.rect cx - (ww / 2), cy, ww, UNIT
-  circle = PAPER.circle cx, cy, ww / 2
+  rect = PAPER.rect cx - (U2 / 2), cy, U2, UNIT
+  circle = PAPER.circle cx, cy, U2 / 2
   rect.attr \fill, \black
   circle.attr \fill, \black
 
 draw-doorway-section = (width, center) ->
-  cx = center.x - (width * UNIT * 0.5) + (UNIT * 1.5)
+  cx = center.x - (width * U2) + UNIT + U2
   cy = center.y
   w2 = ~~(width / 2)
   for ii from 0 til w2
@@ -62,23 +65,20 @@ draw-windows = (width, center, condition) ->
   win width, center, condition
 
 draw-square-windows = (width, center, condition) ->
-  ww = UNIT / 2
-  wh = UNIT
-  cx = center.x - ( (width * UNIT) / 2) + (ww / 2)
-  cy = center.y + UNIT - (UNIT / 4)
+  cx = center.x - (width * U2) + U4
+  cy = center.y + UNIT - U4
   for ii from 0 til width
     if condition ii
-      rect = PAPER.rect cx, cy, ww, wh
+      rect = PAPER.rect cx, cy, U2, UNIT
       rect.attr \fill, \black
     cx += UNIT
 
 draw-round-windows = (width, center, condition) ->
-  ww = UNIT / 2
-  cx = center.x - ((width * UNIT) / 2) + (UNIT / 2)
-  cy = center.y + (UNIT * 0.75)
+  cx = center.x - (width * U2) + U2
+  cy = center.y + U2 + U4
   for ii from 0 til width
     if condition ii
-      rect = PAPER.circle cx, cy, ww / 2
+      rect = PAPER.circle cx, cy, U4
       rect.attr \fill, \black
     cx += UNIT
 
@@ -92,18 +92,16 @@ draw-odd-windows = (width, center) ->
   draw-windows width, center, -> it % 2
 
 draw-stairs = (width, center) ->
-  h4 = UNIT / 4
-  h8 = h4 / 2
-  cx = center.x - (width * UNIT / 2) - h4
+  cx = center.x - (width * UNIT / 2) - U4
   cy = center.y
   for ii from 0 til 4
-    PAPER.rect cx, cy + (ii * h8), (UNIT / 2) + (width * UNIT), h8
+    PAPER.rect cx, cy + (ii * U8), U2 + (width * UNIT), U8
 
 draw-column-section = (width, center) ->
   # draw width+1 columns, each 2 UNIT high
-  column-width = ~~(UNIT / 8)
+  column-width = U8
   column-height = 2 * UNIT
-  cap-width = ~~(UNIT / 4)
+  cap-width = U4
   cap-height = ~~(UNIT / 10)
 
   # figure out where to start
@@ -111,7 +109,7 @@ draw-column-section = (width, center) ->
   y = center.y # this is the top
 
   for ii from 0 to width
-    cx = x - (column-width / 2)
+    cx = x - (U8 / 2)
     white PAPER.rect cx, y, column-width, column-height
     cx = x - (cap-width / 2)
     white PAPER.rect cx, y, cap-width, cap-height
@@ -122,20 +120,19 @@ draw-column-section = (width, center) ->
 draw-bannister = (width, center) ->
   # draw a porch railing
   uu = ~~(UNIT / 10)
-  bh = UNIT / 4
-  x = center.x - (UNIT * (width / 2))
-  y = center.y + (2 * UNIT) - bh # this is the top
+  x = center.x - (width * U2)
+  y = center.y + (2 * UNIT) - U4 # this is the top
   for ii from 0 to width * 4
     cx = x - (uu / 2)
-    white PAPER.rect cx, y, uu, bh
-    x += UNIT / 4 # move over
-  x = center.x - (UNIT * (width / 2))
+    white PAPER.rect cx, y, uu, U4
+    x += U4 # move over
+  x = center.x - (width * U2)
   white PAPER.rect x, y - (uu / 2), width * UNIT, uu
   white PAPER.rect x, center.y + (UNIT * 2) - (uu / 2), width * UNIT, uu
 
 draw-wall = (width, center, color) ->
   # just a wall without columns
-  x = center.x - (UNIT * (width / 2))
+  x = center.x - (width * U2)
   y = center.y # this is the top
   color PAPER.rect x, y, width * UNIT, 2 * UNIT
 
@@ -146,14 +143,14 @@ draw-recessed-wall = (width, center) ->
 
 draw-foundation = (width, center) ->
   # just a wall on the same level as the stairs
-  x = center.x - (UNIT * (width / 2))
+  x = center.x - (width * U2)
   y = center.y # this is the top
-  white PAPER.rect x, y, width * UNIT, UNIT / 2
+  white PAPER.rect x, y, width * UNIT, U2
 
-draw-building = (depth, width, floors, max-floor) -> # depth=0 front
+draw-building = (depth, width, floors, center=CENTER) -> # depth=0 front
   w = width
-  h = 300 + ((UNIT * 2) * (max-floor - floors))
-  cx = CENTER
+  h = ((UNIT * 2) * (1 + MAX_FLOORS - floors))
+  cx = center
 
   roof = pick [->, draw-flat-roof, draw-flat-roof, draw-triangle-roof ]
   roof w, x: cx, y: h
@@ -173,24 +170,69 @@ draw-building = (depth, width, floors, max-floor) -> # depth=0 front
   if depth == 1 then draw-stairs w, x: cx, y: h
   else draw-foundation w, x: cx, y: h
 
-draw-stack = ->
-  PAPER.clear!
+draw-stack = (max-width=12, max-floors=6, center=CENTER) ->
   layers = []
-  for ll from 0 til 2 + R 5
-    fp = 1 + R 6
-    wp = 1 + (2 * R 12)
+  for ll from 0 til 2 + R 4
+    fp = 1 + R max-floors
+    wp = 1 + (2 * R max-width)
     layers.push w: wp, f: fp
 
-  max-floor = Math.max.apply null, layers.map -> it.f
   for li from 0 til layers.length
     layer = layers[li]
-    draw-building layers.length - li, layer.w, layer.f, max-floor
+    draw-building layers.length - li, layer.w, layer.f, center
   # maybe add a wall, if so maybe add towers
 
+draw-tower = (center=CENTER) ->
+  draw-stack 3, 7, center
+
+draw-base = (center=CENTER) ->
+  draw-stack 20, 3, center
+
+draw-fit = (center=CENTER) ->
+  narrow = ~~(MAX_WIDTH / 4)
+  narrowish = ~~(MAX_WIDTH / 2) - 1
+  short = ~~(MAX_FLOORS / 2)
+  draw-stack MAX_WIDTH, short
+  draw-stack narrow, MAX_FLOORS
+  draw-stack narrow, MAX_FLOORS, center - (U2 * MAX_WIDTH) - R narrowish
+  draw-stack narrow, MAX_FLOORS, center + (U2 * MAX_WIDTH) + R narrowish
+
+draw-three-towers = ->
+  draw-base CENTER
+  draw-tower CENTER
+  draw-tower CENTER - (10 * UNIT)
+  draw-tower CENTER + (10 * UNIT)
+
+ready-download = ->
+  link = document.query-selector \#download
+  link.hreflang = \image/svg+xml
+  link.href = "data:image/svg+xml;utf8," + unescape document.query-selector(\svg).outerHTML
+  link.download = \palladio.svg
+
+get-all-bounds = ->
+  set = PAPER.set!
+  PAPER.for-each -> set.push it
+  return set.getBBox!
+
+size-to-fit = ->
+  bounds = get-all-bounds!
+  M = 20 # margin
+  PAPER.set-view-box bounds.x - M, 0, bounds.width + 2 * M, HEIGHT # bounds.height + 2 * M
 
 R = -> ~~(it * Math.random!)
 pick = -> it[R it.length]
-document.onclick = ->
-  draw-stack!
 
-draw-stack!
+do-all = ->
+  PAPER.clear!
+  #draw-three-towers!
+  draw-fit!
+  #size-to-fit!
+  ready-download!
+
+document.query-selector(\#loop).onclick = ->
+  it.preventDefault!
+  set-interval do-all, 10 * 1000
+
+document.query-selector(\svg).onclick = do-all
+do-all!
+window.PAPER = PAPER
